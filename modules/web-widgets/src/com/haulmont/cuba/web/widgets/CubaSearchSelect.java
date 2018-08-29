@@ -26,8 +26,6 @@ public class CubaSearchSelect<V> extends CComboBox<V> {
     protected boolean repaintOptions = false;
 
     public CubaSearchSelect() {
-//        super.setFilteringMode(FilteringMode.OFF);
-
         setStyleName("c-searchselect");
     }
 
@@ -47,49 +45,28 @@ public class CubaSearchSelect<V> extends CComboBox<V> {
         super.changeVariables(source, variables);
     }
 
-    // VAADIN8: gg, implement
-    /*@Override
-    protected void requestRepaintOptions(String caseSensitiveFilter) {
-        if (!repaintOptions && currentPage < 0) {
-            String aPrevFilter = this.prevfilterstring;
-            String aFilter = this.filterstring;
-
-            if (filterHandler != null) {
-                filterHandler.onFilterChange(caseSensitiveFilter);
-            }
-
-            this.repaintOptions = true;
-            this.currentPage = 0;
-            this.prevfilterstring = aPrevFilter;
-            this.filterstring = aFilter;
+    @Override
+    protected void filterChanged(String filter) {
+        if (filterHandler != null) {
+            filterHandler.onFilterChange(filter);
         }
-    }*/
-
-    /*@Override
-    public void setFilteringMode(FilteringMode filteringMode) {
-        // ignore filter mode change
-    }*/
+    }
 
     @Override
     public boolean isTextInputAllowed() {
         return false;
     }
 
-    // VAADIN8: gg, implement
-    /*@Override
-    public boolean isNewItemsAllowed() {
-        return false;
+    @Override
+    public NewItemProvider<V> getNewItemProvider() {
+        return null;
     }
 
     @Override
-    public void setNewItemsAllowed(boolean allowNewOptions) {
-        if (allowNewOptions) {
+    public void setNewItemProvider(NewItemProvider<V> newItemProvider) {
+        if (newItemProvider != null) {
             throw new UnsupportedOperationException();
         }
-    }*/
-
-    public FilterHandler getFilterHandler() {
-        return filterHandler;
     }
 
     public void setFilterHandler(FilterHandler filterHandler) {
