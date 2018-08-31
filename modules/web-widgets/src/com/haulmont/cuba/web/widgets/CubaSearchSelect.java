@@ -19,11 +19,11 @@ package com.haulmont.cuba.web.widgets;
 import com.haulmont.cuba.web.widgets.client.searchselect.CubaSearchSelectState;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class CubaSearchSelect<V> extends CComboBox<V> {
 
-    protected FilterHandler filterHandler = null;
-    protected boolean repaintOptions = false;
+    protected Consumer<String> filterHandler = null;
 
     public CubaSearchSelect() {
         setStyleName("c-searchselect");
@@ -41,14 +41,13 @@ public class CubaSearchSelect<V> extends CComboBox<V> {
 
     @Override
     public void changeVariables(Object source, Map<String, Object> variables) {
-        this.repaintOptions = false;
         super.changeVariables(source, variables);
     }
 
     @Override
     protected void filterChanged(String filter) {
         if (filterHandler != null) {
-            filterHandler.onFilterChange(filter);
+            filterHandler.accept(filter);
         }
     }
 
@@ -69,11 +68,7 @@ public class CubaSearchSelect<V> extends CComboBox<V> {
         }
     }
 
-    public void setFilterHandler(FilterHandler filterHandler) {
+    public void setFilterHandler(Consumer<String> filterHandler) {
         this.filterHandler = filterHandler;
-    }
-
-    public interface FilterHandler {
-        void onFilterChange(String newFilter);
     }
 }

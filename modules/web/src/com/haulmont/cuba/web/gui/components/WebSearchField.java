@@ -16,6 +16,7 @@
  */
 package com.haulmont.cuba.web.gui.components;
 
+import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.core.global.QueryUtils;
@@ -34,7 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class WebSearchField<V> extends WebLookupField<V> implements SearchField<V> {
+public class WebSearchField<V extends Entity> extends WebLookupField<V> implements SearchField<V> {
 
     protected static final String SEARCHSELECT_STYLENAME = "c-searchselect";
 
@@ -238,11 +239,4 @@ public class WebSearchField<V> extends WebLookupField<V> implements SearchField<
         }
         super.setOptionsSource(optionsSource);
     }
-
-    // VAADIN8: gg, implement
-    /*@Override
-    protected void setupDsAutoRefresh(OptionsDsWrapper ds) {
-        ds.setAutoRefresh(false);
-        ds.setExecuteAutoRefreshInvalid(false);
-    }*/
 }
