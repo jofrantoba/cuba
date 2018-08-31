@@ -17,8 +17,6 @@
 
 package com.haulmont.cuba.gui.components;
 
-import com.haulmont.bali.util.Preconditions;
-
 import java.util.List;
 import java.util.Map;
 
@@ -26,20 +24,19 @@ public interface SuggestionField<V> extends Field<V>, Component.Focusable, HasIn
 
     String NAME = "suggestionField";
 
-    interface SearchExecutor<E> {
+    interface SearchExecutor<V> {
 
         /**
          * Executed on background thread.
          *
          * @param searchString search string as is
          * @param searchParams additional parameters, empty if SearchExecutor is not instance of {@link ParametrizedSearchExecutor}
-         * @return list with found items. Item can be any type. {@link OptionWrapper} instances can be used as
-         * items to provide different value for displaying purpose.
+         * @return list with found items. Item can be any type.
          */
-        List<E> search(String searchString, Map<String, Object> searchParams);
+        List<V> search(String searchString, Map<String, Object> searchParams);
     }
 
-    interface ParametrizedSearchExecutor<E> extends SearchExecutor<E> {
+    interface ParametrizedSearchExecutor<V> extends SearchExecutor<V> {
         /**
          * Called by the execution environment in UI thread to prepare execution parameters for {@link SearchExecutor#search(String, Map)}.
          *
@@ -182,62 +179,4 @@ public interface SuggestionField<V> extends Field<V>, Component.Focusable, HasIn
 
     String getCaptionProperty();
     void setCaptionProperty(String captionProperty);
-
-    /**
-     * Represent value and its string representation.
-     */
-    class OptionWrapper<V> {
-        protected String caption;
-        protected V value;
-
-        public OptionWrapper(String caption, V value) {
-            Preconditions.checkNotNullArgument(caption);
-            Preconditions.checkNotNullArgument(value);
-
-            this.caption = caption;
-            this.value = value;
-        }
-
-        /**
-         * @return string representation
-         */
-        public String getCaption() {
-            return caption;
-        }
-
-        /**
-         * @return value
-         */
-        public V getValue() {
-            return value;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            OptionWrapper that = (OptionWrapper) o;
-
-            return caption.equals(that.caption)
-                    && value.equals(that.value);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = caption.hashCode();
-            result = 31 * result + value.hashCode();
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return caption;
-        }
-    }
 }

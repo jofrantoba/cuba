@@ -46,10 +46,9 @@ public class WebSuggestionField<V> extends WebV8AbstractField<CubaSuggestionFiel
 
     protected BackgroundWorker backgroundWorker = AppBeans.get(BackgroundWorker.NAME);
     protected UserSession userSession = AppBeans.get(UserSession.class);
-    protected BackgroundTaskHandler<List<?>> handler;
+    protected BackgroundTaskHandler<List<V>> handler;
 
-    // TODO: gg, generic?
-    protected SearchExecutor<?> searchExecutor;
+    protected SearchExecutor<V> searchExecutor;
 
     protected EnterActionHandler enterActionHandler;
     protected ArrowDownActionHandler arrowDownActionHandler;
@@ -73,7 +72,7 @@ public class WebSuggestionField<V> extends WebV8AbstractField<CubaSuggestionFiel
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         initComponent(component);
     }
 
@@ -117,14 +116,6 @@ public class WebSuggestionField<V> extends WebV8AbstractField<CubaSuggestionFiel
     }
 
     @Override
-    public V getValue() {
-        V value = super.getValue();
-        return value instanceof OptionWrapper
-                ? (V) ((OptionWrapper) value).getValue()
-                : value;
-    }
-
-    @Override
     public CaptionMode getCaptionMode() {
         return captionMode;
     }
@@ -160,18 +151,18 @@ public class WebSuggestionField<V> extends WebV8AbstractField<CubaSuggestionFiel
     }
 
     protected void searchSuggestions(final String query) {
-        BackgroundTask<Long, List<?>> task = getSearchSuggestionsTask(query);
+        BackgroundTask<Long, List<V>> task = getSearchSuggestionsTask(query);
         if (task != null) {
             handler = backgroundWorker.handle(task);
             handler.execute();
         }
     }
 
-    protected BackgroundTask<Long, List<?>> getSearchSuggestionsTask(final String query) {
+    protected BackgroundTask<Long, List<V>> getSearchSuggestionsTask(final String query) {
         if (this.searchExecutor == null)
             return null;
 
-        final SearchExecutor<?> currentSearchExecutor = this.searchExecutor;
+        final SearchExecutor<V> currentSearchExecutor = this.searchExecutor;
 
         Map<String, Object> params;
         if (currentSearchExecutor instanceof ParametrizedSearchExecutor) {
@@ -180,13 +171,11 @@ public class WebSuggestionField<V> extends WebV8AbstractField<CubaSuggestionFiel
             params = Collections.emptyMap();
         }
 
-        return new BackgroundTask<Long, List<?>>(0) {
+        return new BackgroundTask<Long, List<V>>(0) {
             @Override
-            public List<?> run(TaskLifeCycle<Long> taskLifeCycle) throws Exception {
-                List<?> result;
+            public List<V> run(TaskLifeCycle<Long> taskLifeCycle) throws Exception {
+                List<V> result;
                 try {
-                    // todo: remove after fixing #PLI-213
-                    //noinspection ChangingGuiFromBackgroundTask
                     result = asyncSearch(currentSearchExecutor, query, params);
                 } catch (RuntimeException e) {
                     log.error("Error in async search thread", e);
@@ -198,10 +187,9 @@ public class WebSuggestionField<V> extends WebV8AbstractField<CubaSuggestionFiel
             }
 
             @Override
-            public void done(List<?> result) {
+            public void done(List<V> result) {
                 log.debug("Search results for '{}'", query);
-                // TODO: gg, to do to do do do
-                handleSearchResult((List<V>) result);
+                handleSearchResult(result);
             }
 
             @Override
@@ -216,18 +204,18 @@ public class WebSuggestionField<V> extends WebV8AbstractField<CubaSuggestionFiel
         };
     }
 
-    protected List<?> asyncSearch(SearchExecutor<?> searchExecutor, String searchString,
-                                       Map<String, Object> params) throws Exception {
+    protected List<V> asyncSearch(SearchExecutor<V> searchExecutor, String searchString,
+                                  Map<String, Object> params) throws Exception {
         if (Thread.currentThread().isInterrupted()) {
             throw new InterruptedException();
         }
 
         log.debug("Search '{}'", searchString);
 
-        List<?> searchResultItems;
+        List<V> searchResultItems;
         if (searchExecutor instanceof ParametrizedSearchExecutor) {
             //noinspection unchecked
-            ParametrizedSearchExecutor<?> pSearchExecutor = (ParametrizedSearchExecutor<?>) searchExecutor;
+            ParametrizedSearchExecutor<V> pSearchExecutor = (ParametrizedSearchExecutor<V>) searchExecutor;
             searchResultItems = pSearchExecutor.search(searchString, params);
         } else {
             searchResultItems = searchExecutor.search(searchString, Collections.emptyMap());
